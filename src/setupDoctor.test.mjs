@@ -219,12 +219,14 @@ test('doctor describes the credential ladder without exposing values', () => {
     OPENSKY_CLIENT_ID: { configured: false },
     OPENSKY_CLIENT_SECRET: { configured: false },
     LL2_API_TOKEN: { configured: true, source: 'environment' },
+    OPENCELLID_API_KEY: { configured: false },
   };
   const capabilities = buildCapabilitySummary(credentials);
   assert.match(capabilities.map, /Google Photorealistic 3D Tiles through Cesium ion/);
   assert.match(capabilities.map, /Bing and world-terrain stacks/);
   assert.equal(capabilities.voice, 'available');
   assert.match(capabilities.missions, /token allowance/);
+  assert.match(capabilities.cellular, /mapped OpenStreetMap sites/);
   assert.equal(capabilities.flights, 'OpenSky keyless anonymous access (rate-limited)');
 
   const report = formatSetupReport({
@@ -263,6 +265,7 @@ test('doctor sends Keychain-backed reports to dev-fresh and describes OpenSky as
     'OPENSKY_CLIENT_ID',
     'OPENSKY_CLIENT_SECRET',
     'LL2_API_TOKEN',
+    'OPENCELLID_API_KEY',
   ].map((name) => [name, { configured: false }]));
   credentials.GOOGLE_MAPS_API_KEY = { configured: true, source: 'macOS Keychain' };
   credentials.OPENSKY_CLIENT_ID = { configured: true, source: 'environment' };
@@ -295,6 +298,7 @@ test('doctor never calls a dependency-missing setup ready', () => {
     'OPENSKY_CLIENT_ID',
     'OPENSKY_CLIENT_SECRET',
     'LL2_API_TOKEN',
+    'OPENCELLID_API_KEY',
   ].map((name) => [name, { configured: false }]));
   const output = formatSetupReport({
     ready: false,

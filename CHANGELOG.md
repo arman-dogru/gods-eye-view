@@ -350,6 +350,14 @@ of current runtime behavior, see [`docs/CURRENT-STATE.md`](docs/CURRENT-STATE.md
 
 ## [Unreleased]
 
+- Add the Cellular Networks layer with keyless OpenStreetMap physical-site
+  mapping and optional server-side OpenCellID logical cells. Include technology
+  filtering, mapped sector directions, selection details and estimated range
+  visualization. OpenCellID uses bounded canonical tiles, conservative
+  close/overview request budgets, six-hour successful tile caching, concurrency
+  three, explicit partial/saturation states and a rate-limit cooldown.
+
+
 - Add ECMWF IFS model selection to Wind (#464, thanks @beneduzi), with model-scoped forecast-step caches, cancellation of replaced requests, and separate issue/valid timestamps.
 
 - Add bounded Director feature actions with accessible controls, explicit camera/layer admission and cancellation; restore pack geometry on same-shot seek. Preserve existing scenes and content attribution.

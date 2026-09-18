@@ -12,6 +12,7 @@ import { createInstallationSource } from '../layers/installations/source.js';
 import { createSatelliteSource } from '../layers/satellites/source.js';
 import { createLaunchSource } from '../layers/launches/source.js';
 import { createOverpassAlprSource } from '../layers/alpr/source.js';
+import { createCellularNetworksSource } from '../layers/cellular/source.js';
 import { createWeatherSource } from '../layers/weather/source.js';
 import { createCycloneSource } from '../layers/cyclones/source.js';
 import { createWindSource } from '../layers/wind/source.js';
@@ -37,6 +38,7 @@ export function createStandaloneLayerSources() {
     satellites: createSatelliteSource(),
     launches: createLaunchSource(),
     alpr: createOverpassAlprSource(),
+    cellular: createCellularNetworksSource(),
     firms: createFirmsSource(),
     wind: createWindSource(),
     weather: createWeatherSource(),

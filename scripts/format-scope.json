@@ -795,5 +795,11 @@
   "scripts/qa-weather-journey.mjs",
   "scripts/qa-weather-swap.mjs",
   "scripts/qa-weather-teardown.mjs",
-  "src/layers/weather/imageryHost.test.mjs"
+  "src/layers/weather/imageryHost.test.mjs",
+  "server/providers/cellular.js",
+  "server/providers/cellular.test.mjs",
+  "src/layers/cellular/source.js",
+  "src/layers/cellular/source.test.mjs",
+  "src/layers/cellular/index.js",
+  "src/app/layers/cellularNetworks.js"
 ]

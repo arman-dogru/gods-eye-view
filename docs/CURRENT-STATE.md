@@ -418,6 +418,29 @@ query. Movement within an accepted or pending query reuses it. Markers retain
 their Cesium identity and ground clamping while their geometry is unchanged;
 refreshes preserve selection without replaying a click event.
 
+The optional **Cellular Networks** layer is viewport-driven and separates mapped
+physical sites from community-observed logical cells. OpenStreetMap supplies the
+keyless physical-site path through `/api/cellular-networks`, preserving mapped
+operator, structure, height, reference, explicit technology tags and sector
+directions when contributors supplied them. Sector rays are rendered only from
+mapped azimuths and are not inferred RF coverage.
+
+An optional server-side `OPENCELLID_API_KEY` adds OpenCellID GSM, UMTS, LTE,
+NR, NB-IoT and CDMA logical-cell observations. Those records may expose
+MCC/MNC/PLMN, LAC/TAC, Cell ID, PCI/PSC-like metadata, samples, signal metadata
+and the provider's estimated range. Logical cells are not treated as physical
+towers, and estimated range is not presented as guaranteed RF coverage.
+Credentials never reach the browser.
+
+OpenCellID requests use API-safe canonical tiles. Views within the 36-tile
+city-core budget query all visible tiles; wider views sample only the 12 tiles
+nearest the viewport center and report partial coverage. Successful cell tiles
+remain cached in memory for six hours, request concurrency is three, and a
+rate-limit response opens a 15-minute in-process cooldown. Transient provider
+failures are not cached as successful empty results. Selection shows an anchored
+site/cell popup; RANGE uses a bounded representative set and emphasizes the
+selected logical cell while remaining terrain-aware.
+
 Data Centers, Dams and Submarine Cables release their built Cesium data sources
 and record references when disabled. Parsed datasets remain cached for the layer
 lifetime, so re-enable rebuilds entities without downloading or parsing again;
@@ -2679,6 +2702,7 @@ its criteria cannot be silently ignored.
 | Military Flights 🎖️    | adsb.lol /v2/mil                                                                                                                                                                                | `src/data/militaryFlights.js`                         | `/api/adsblol/mil`                                       | 15s                                                                               |
 | Live AIS Vessels 🚢    | AISStream websocket                                                                                                                                                                             | `src/data/aisLiveVessels.js`                          | `/api/ais-live`                                          | 60s (+800ms visibility pass)                                                      |
 | Mapped Installations ⌖ | OpenStreetMap mapped context; on-demand Google Maps Places supplement                                                                                                                           | `src/data/militaryInstallations.js`                   | `/api/military-installations`, `/api/google/text-search` | viewport-driven + user search; while unavailable, auto-retry 30 s → 240 s backoff |
+| Cellular Networks 📡 | OpenStreetMap mapped mobile sites; optional OpenCellID logical cells | `src/layers/cellular/` via `src/app/layers/cellularNetworks.js` | `/api/cellular-networks` (`OPENCELLID_API_KEY` optional) | viewport-driven; logical cells use bounded cached OpenCellID tiles |
 | Earthquakes            | USGS                                                                                                                                                                                            | `src/data/earthquakes.js`                             | —                                                        | 60s                                                                               |
 | Satellites             | CelesTrak                                                                                                                                                                                       | `src/data/satellites.js`                              | `/api/celestrak`                                         | 120s                                                                              |
 | Space Missions (30d)   | Launch Library 2 + CelesTrak                                                                                                                                                                    | `src/data/rocketLaunches.js`                          | `/api/launches` + `/api/celestrak/active`                | 5 min                                                                             |
@@ -3725,7 +3749,7 @@ are omitted rather than framing the wrong part of the globe.
 - Setup doctor resolves `OPENSKY_AUTH_MODE` from the environment and dotenv files. Explicit `anon` and OAuth mode without a client pair report keyless anonymous access (rate-limited); a complete OAuth pair retains the existing presence-only capability wording. Basic and auto modes report the selected mode without guessing which credentials runtime will accept. The proxy's auth behavior is unchanged.
 - Google key expected in Keychain service `google-maps-api` (or `GOOGLE_MAPS_API_KEY`, or `.env`)
 - OpenSky credentials expected in Keychain service `opensky-network` (or env, or `.env`); `OPENSKY_AUTH_MODE` and `OPENSKY_CREDENTIALS_FILE` read from `.env` too
-- Optional-key precedence in `dev-fresh.sh` is uniform — explicit shell env, then `.env`, then Keychain: `OPENAI_API_KEY` (Keychain `openai-api`/`api-key` — voice + HUD summary), `AISSTREAM_API_KEY` (`aisstream-api`/`api-key` — live vessels), `CESIUM_ION_TOKEN` (`cesium-ion`/`token` — Bing stacks), `TOMTOM_API_KEY` (`tomtom-api`/`api-key` — live traffic flow), `FIRMS_MAP_KEY` (`firms-map`/`map-key` — live fires), `LL2_API_TOKEN` (`.env` only)
+- Optional-key precedence in `dev-fresh.sh` is uniform — explicit shell env, then `.env`, then Keychain: `OPENAI_API_KEY` (Keychain `openai-api`/`api-key` — voice + HUD summary), `AISSTREAM_API_KEY` (`aisstream-api`/`api-key` — live vessels), `CESIUM_ION_TOKEN` (`cesium-ion`/`token` — Bing stacks), `TOMTOM_API_KEY` (`tomtom-api`/`api-key` — live traffic flow), `FIRMS_MAP_KEY` (`firms-map`/`map-key` — live fires), `LL2_API_TOKEN` (`.env` only), `OPENCELLID_API_KEY` (`.env` only — optional logical cellular cells)
 - An empty string is not "unset" on either side of the launcher, and both sides are handled. `scripts/read-dotenv-value.mjs` hides the requested key from `process.env` for the duration of the read (Vite's `loadEnv` otherwise lets an inherited empty export win over the parsed files) and restores it after. A key the launcher resolves to nothing is then removed from the dev server's environment outright (`env -u`), not merely omitted — the child inherits this shell's environment, and Vite backfills `.env` only over undefined variables, so an empty export in either place would shadow a configured key. `CCTV_CALTRANS_DISTRICTS` is the deliberate exception: empty is its documented Caltrans kill switch and is passed through as-is
 - `.env` supported via `.env.example` template
 
